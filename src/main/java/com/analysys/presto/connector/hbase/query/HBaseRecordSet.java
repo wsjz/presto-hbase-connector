@@ -32,7 +32,7 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.*;
-import org.apache.hadoop.hbase.protobuf.generated.HBaseProtos;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.SnapshotProtos;
 import org.apache.hadoop.hbase.snapshot.SnapshotDescriptionUtils;
 import org.apache.hadoop.hbase.snapshot.SnapshotManifest;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -100,7 +100,8 @@ public class HBaseRecordSet implements RecordSet {
                 Path root = new Path(config.getHbaseRootDir());
                 FileSystem fs = FileSystem.get(conf);
                 Path snapshotDir = SnapshotDescriptionUtils.getCompletedSnapshotDir(hBaseSplit.getSnapshotName(), root);
-                HBaseProtos.SnapshotDescription snapshotDesc = SnapshotDescriptionUtils.readSnapshotInfo(fs, snapshotDir);
+                SnapshotProtos.SnapshotDescription
+                        snapshotDesc = SnapshotDescriptionUtils.readSnapshotInfo(fs, snapshotDir);
                 SnapshotManifest manifest = SnapshotManifest.open(conf, fs, snapshotDir, snapshotDesc);
                 List<HRegionInfo> regionInfos = Utils.getRegionInfosFromManifest(manifest);
                 HTableDescriptor htd = manifest.getTableDescriptor();
@@ -273,24 +274,3 @@ public class HBaseRecordSet implements RecordSet {
         return hBaseSplit;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -28,7 +28,10 @@ import com.google.common.collect.ImmutableMap;
 import io.airlift.log.Logger;
 import io.airlift.slice.Slice;
 import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.SnapshotDescription;
+import org.apache.hadoop.hbase.client.SnapshotType;
 import org.apache.hadoop.hbase.protobuf.generated.HBaseProtos;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.SnapshotProtos;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -182,7 +185,7 @@ public class HBaseMetadata implements ConnectorMetadata {
 
     private List<SchemaTableName> listTables(ConnectorSession session, SchemaTablePrefix prefix) {
         return (prefix.getSchemaName() == null ?
-                this.listTables(session, prefix.getSchemaName()) :
+                        this.listTables(session, prefix.getSchemaName()) :
                 ImmutableList.of(new SchemaTableName(prefix.getSchemaName(), prefix.getTableName())));
     }
 
@@ -215,12 +218,9 @@ public class HBaseMetadata implements ConnectorMetadata {
         } else {
             fullTableName = schemaName + ":" + tableName;
         }
-        HBaseProtos.SnapshotDescription snapshot = HBaseProtos.SnapshotDescription.newBuilder()
-                .setName(snapshotName)
-                .setTable(fullTableName)
-                .setType(HBaseProtos.SnapshotDescription.Type.FLUSH)
-                // .setType(HBaseProtos.SnapshotDescription.Type.DISABLED)
-                .build();
+
+        SnapshotDescription snapshot = new SnapshotDescription(snapshotName, fullTableName,
+                SnapshotType.FLUSH);
         admin.snapshot(snapshot);
         log.info("createSnapshot: create snapshot " + snapshotName
                 + " used " + (System.currentTimeMillis() - start) + " mill seconds.");
@@ -327,14 +327,4 @@ public class HBaseMetadata implements ConnectorMetadata {
     // --------------- support delete function end ---------------
 
 }
-
-
-
-
-
-
-
-
-
-
 

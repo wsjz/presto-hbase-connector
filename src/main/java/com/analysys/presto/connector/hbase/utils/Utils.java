@@ -29,8 +29,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HRegionInfo;
-import org.apache.hadoop.hbase.protobuf.generated.HBaseProtos;
-import org.apache.hadoop.hbase.protobuf.generated.SnapshotProtos;
+import org.apache.hadoop.hbase.shaded.protobuf.generated.SnapshotProtos;
 import org.apache.hadoop.hbase.snapshot.SnapshotDescriptionUtils;
 import org.apache.hadoop.hbase.snapshot.SnapshotManifest;
 import org.codehaus.jettison.json.JSONArray;
@@ -233,7 +232,7 @@ public class Utils {
 
         List<HRegionInfo> regionInfos = Lists.newArrayListWithCapacity(regionManifests.size());
 
-        for (SnapshotProtos.SnapshotRegionManifest regionManifest : regionManifests) {
+        for (org.apache.hadoop.hbase.shaded.protobuf.generated.SnapshotProtos.SnapshotRegionManifest regionManifest : regionManifests) {
             HRegionInfo hri = HRegionInfo.convert(regionManifest.getRegionInfo());
             if (hri.isOffline() && (hri.isSplit() || hri.isSplitParent())) {
                 continue;
@@ -260,7 +259,7 @@ public class Utils {
             Path root = new Path(hBaseRootDir);
             FileSystem fs = FileSystem.get(conf);
             Path snapshotDir = SnapshotDescriptionUtils.getCompletedSnapshotDir(snapshotName, root);
-            HBaseProtos.SnapshotDescription snapshotDesc = SnapshotDescriptionUtils.readSnapshotInfo(fs, snapshotDir);
+            SnapshotProtos.SnapshotDescription snapshotDesc = SnapshotDescriptionUtils.readSnapshotInfo(fs, snapshotDir);
             SnapshotManifest manifest = SnapshotManifest.open(conf, fs, snapshotDir, snapshotDesc);
             return Utils.getRegionInfosFromManifest(manifest);
         } catch (IOException ex) {

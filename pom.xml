@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.facebook.presto</groupId>
         <artifactId>presto-root</artifactId>
-        <version>0.220</version>
+        <version>0.219</version>
     </parent>
     <packaging>presto-plugin</packaging>
      -->
@@ -21,8 +21,8 @@
 
     <properties>
         <air.check.skip-license>true</air.check.skip-license>
-        <presto.version>0.220</presto.version>
-        <dep.airlift.version>0.168</dep.airlift.version>
+        <presto.version>0.219</presto.version>
+        <dep.airlift.version>0.178</dep.airlift.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -33,15 +33,15 @@
     <dependencies>
 
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.40</version>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-shaded-client</artifactId>
+            <version>2.0.5</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase-shaded-client</artifactId>
-            <version>1.1.2</version>
+            <artifactId>hbase-shaded-server</artifactId>
+            <version>2.0.0-alpha2</version>
         </dependency>
 
         <dependency>
@@ -50,20 +50,7 @@
             <version>0.2.11</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.mchange</groupId>
-            <artifactId>c3p0</artifactId>
-            <version>0.9.5.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis</artifactId>
-            <version>3.4.0</version>
-        </dependency>
-
         <!-- Presto SPI -->
-
         <dependency>
             <groupId>com.facebook.presto</groupId>
             <artifactId>presto-main</artifactId>
@@ -81,7 +68,13 @@
             <groupId>com.facebook.presto</groupId>
             <artifactId>presto-spi</artifactId>
             <version>${presto.version}</version>
-            <!--<scope>provided</scope>-->
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.facebook.presto</groupId>
+            <artifactId>presto-jdbc</artifactId>
+            <version>0.171</version>
         </dependency>
 
         <dependency>
@@ -131,21 +124,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase-shaded-server</artifactId>
-            <version>1.1.2</version>
-        </dependency>
-
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.facebook.presto</groupId>
-            <artifactId>presto-jdbc</artifactId>
-            <version>0.171</version>
         </dependency>
 
         <dependency>
@@ -158,19 +139,6 @@
             <artifactId>hadoop-apache2</artifactId>
             <version>2.7.4-1</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <version>1.6.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <version>1.6.5</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
