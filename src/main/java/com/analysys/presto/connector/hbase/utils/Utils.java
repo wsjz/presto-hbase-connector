@@ -13,16 +13,23 @@
  */
 package com.analysys.presto.connector.hbase.utils;
 
-import com.analysys.presto.connector.hbase.meta.HBaseColumnMetadata;
-import com.analysys.presto.connector.hbase.meta.TableMetaInfo;
-import com.analysys.presto.connector.hbase.schedule.ConditionInfo;
-import com.facebook.presto.jdbc.internal.jackson.databind.ObjectMapper;
-import com.facebook.presto.spi.ColumnMetadata;
-import com.facebook.presto.spi.type.*;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import io.airlift.log.Logger;
+import static com.analysys.presto.connector.hbase.utils.Constant.ARRAY_STRING_SPLITTER;
+import static com.analysys.presto.connector.hbase.utils.Constant.CONDITION_OPER;
+import static com.analysys.presto.connector.hbase.utils.Constant.DECIMAL_DEFAULT_PRECISION;
+import static com.analysys.presto.connector.hbase.utils.Constant.DECIMAL_DEFAULT_SCALE;
+import static com.analysys.presto.connector.hbase.utils.Constant.DEFAULT_HBASE_NAMESPACE_NAME;
+import static com.analysys.presto.connector.hbase.utils.Constant.JSON_ENCODING_UTF8;
+import static com.analysys.presto.connector.hbase.utils.Constant.JSON_TABLEMETA_COLUMNES;
+import static com.analysys.presto.connector.hbase.utils.Constant.JSON_TABLEMETA_COLUMNNAME;
+import static com.analysys.presto.connector.hbase.utils.Constant.JSON_TABLEMETA_FAMILY;
+import static com.analysys.presto.connector.hbase.utils.Constant.JSON_TABLEMETA_ISROWKEY;
+import static com.analysys.presto.connector.hbase.utils.Constant.JSON_TABLEMETA_TYPE;
+import static com.analysys.presto.connector.hbase.utils.Constant.TABLE_META_FILE_TAIL;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -35,11 +42,25 @@ import org.apache.hadoop.hbase.snapshot.SnapshotManifest;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
+import com.analysys.presto.connector.hbase.meta.HBaseColumnMetadata;
+import com.analysys.presto.connector.hbase.meta.TableMetaInfo;
+import com.analysys.presto.connector.hbase.schedule.ConditionInfo;
+import com.facebook.presto.jdbc.internal.jackson.databind.ObjectMapper;
+import com.facebook.presto.spi.ColumnMetadata;
+import com.facebook.presto.spi.type.ArrayType;
+import com.facebook.presto.spi.type.BigintType;
+import com.facebook.presto.spi.type.BooleanType;
+import com.facebook.presto.spi.type.DecimalType;
+import com.facebook.presto.spi.type.DoubleType;
+import com.facebook.presto.spi.type.IntegerType;
+import com.facebook.presto.spi.type.TimestampType;
+import com.facebook.presto.spi.type.Type;
+import com.facebook.presto.spi.type.VarcharType;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
-import static com.analysys.presto.connector.hbase.utils.Constant.*;
+import io.airlift.log.Logger;
 
 /**
  * utils
@@ -232,7 +253,7 @@ public class Utils {
 
         List<HRegionInfo> regionInfos = Lists.newArrayListWithCapacity(regionManifests.size());
 
-        for (org.apache.hadoop.hbase.shaded.protobuf.generated.SnapshotProtos.SnapshotRegionManifest regionManifest : regionManifests) {
+        for (SnapshotProtos.SnapshotRegionManifest regionManifest : regionManifests) {
             HRegionInfo hri = HRegionInfo.convert(regionManifest.getRegionInfo());
             if (hri.isOffline() && (hri.isSplit() || hri.isSplitParent())) {
                 continue;
@@ -281,7 +302,7 @@ public class Utils {
         for (int j = 0; j < ss.length; j++) {
             String ele = ss[j];
             if (j > 0) {
-                ele = ele.substring(1, ele.length());
+                ele = ele.substring(1);
             } else {
                 buff.append(ARRAY_STRING_SPLITTER);
             }
@@ -290,7 +311,8 @@ public class Utils {
         return buff.toString();
     }
 
+    public static boolean isEmpty(String str) {
+        return str == null || "".equals(str);
+    }
+
 }
-
-
-

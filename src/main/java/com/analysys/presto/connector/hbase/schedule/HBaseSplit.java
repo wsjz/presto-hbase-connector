@@ -13,14 +13,15 @@
  */
 package com.analysys.presto.connector.hbase.schedule;
 
+import java.util.List;
+import java.util.Objects;
+
+import org.apache.hadoop.hbase.HRegionInfo;
+
 import com.facebook.presto.spi.ConnectorSplit;
 import com.facebook.presto.spi.HostAddress;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.hadoop.hbase.HRegionInfo;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * HBase split

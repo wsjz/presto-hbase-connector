@@ -13,31 +13,46 @@
  */
 package com.analysys.presto.connector.hbase.query;
 
-import com.analysys.presto.connector.hbase.meta.HBaseColumnHandle;
-import com.analysys.presto.connector.hbase.schedule.HBaseSplit;
-import com.analysys.presto.connector.hbase.utils.Constant;
-import com.facebook.presto.spi.RecordCursor;
-import com.facebook.presto.spi.block.BlockBuilder;
-import com.facebook.presto.spi.block.PageBuilderStatus;
-import com.facebook.presto.spi.type.*;
-import com.google.common.base.Preconditions;
-import io.airlift.log.Logger;
-import io.airlift.slice.Slice;
-import io.airlift.slice.Slices;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
+import static com.analysys.presto.connector.hbase.utils.Constant.BIGINT_CLASS;
+import static com.analysys.presto.connector.hbase.utils.Constant.BOOLEAN_CLASS;
+import static com.analysys.presto.connector.hbase.utils.Constant.DOUBLE_CLASS;
+import static com.analysys.presto.connector.hbase.utils.Constant.INTEGER_CLASS;
+import static com.analysys.presto.connector.hbase.utils.Constant.TIMESTAMP_CLASS;
+import static com.analysys.presto.connector.hbase.utils.Constant.VARCHAR_CLASS;
+import static com.analysys.presto.connector.hbase.utils.Utils.arrayCopy;
+import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
+import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.analysys.presto.connector.hbase.utils.Constant.*;
-import static com.analysys.presto.connector.hbase.utils.Utils.arrayCopy;
-import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.IntegerType.INTEGER;
-import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
+
+import com.analysys.presto.connector.hbase.meta.HBaseColumnHandle;
+import com.analysys.presto.connector.hbase.schedule.HBaseSplit;
+import com.analysys.presto.connector.hbase.utils.Constant;
+import com.facebook.presto.spi.RecordCursor;
+import com.facebook.presto.spi.block.BlockBuilder;
+import com.facebook.presto.spi.block.PageBuilderStatus;
+import com.facebook.presto.spi.type.BooleanType;
+import com.facebook.presto.spi.type.DecimalType;
+import com.facebook.presto.spi.type.Decimals;
+import com.facebook.presto.spi.type.SmallintType;
+import com.facebook.presto.spi.type.StandardTypes;
+import com.facebook.presto.spi.type.Type;
+import com.facebook.presto.spi.type.TypeUtils;
+import com.facebook.presto.spi.type.VarbinaryType;
+import com.facebook.presto.spi.type.VarcharType;
+import com.google.common.base.Preconditions;
+
+import io.airlift.log.Logger;
+import io.airlift.slice.Slice;
+import io.airlift.slice.Slices;
 
 /**
  * HBase record cursor fetch record in split
@@ -116,14 +131,13 @@ public class HBaseRecordCursor implements RecordCursor {
     }
 
     private Object getFieldValue(int field) {
+        /*Preconditions.checkState(ordinalPositionAndFieldsIndexMap.containsKey(columnHandles.get(field).getOrdinalPosition()),
+                String.format("Cannot find the value of field index %d, field array is %s, split=%s",
+                        field, Arrays.toString(fields), split.toString()));*/
         if (ordinalPositionAndFieldsIndexMap.containsKey(columnHandles.get(field).getOrdinalPosition())) {
             return fields[ordinalPositionAndFieldsIndexMap.get(columnHandles.get(field).getOrdinalPosition())];
         } else {
             return null;
-            /*log.error("Cannot find the value of field index " + field
-                    + ", field array is " + Arrays.toString(fields)
-                    + ", split=" + split.toString());
-            return "ERROR_VALUE";*/
         }
     }
 
@@ -244,7 +258,7 @@ public class HBaseRecordCursor implements RecordCursor {
                 expected, actual);
     }
 
-    public void setRowKeyValue2FieldsAry(Result record, int fieldIndex) {
+    void setRowKeyValue2FieldsAry(Result record, int fieldIndex) {
         // Handle the value of rowKey
         // Check out whether columns to be queried contain rowKey field
         if (fieldIndexMap.containsKey(this.rowKeyColName.hashCode())) {

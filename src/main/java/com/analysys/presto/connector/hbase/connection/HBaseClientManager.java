@@ -13,10 +13,13 @@
  */
 package com.analysys.presto.connector.hbase.connection;
 
-import com.analysys.presto.connector.hbase.meta.HBaseConfig;
-import com.analysys.presto.connector.hbase.meta.HBaseTable;
+import static com.analysys.presto.connector.hbase.utils.Constant.SYSTEMOUT_INTERVAL;
+
+import java.io.IOException;
+import java.util.Objects;
+
 import javax.inject.Inject;
-import io.airlift.log.Logger;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -25,10 +28,10 @@ import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 
-import java.io.IOException;
-import java.util.Objects;
+import com.analysys.presto.connector.hbase.meta.HBaseConfig;
+import com.analysys.presto.connector.hbase.meta.HBaseTable;
 
-import static com.analysys.presto.connector.hbase.utils.Constant.SYSTEMOUT_INTERVAL;
+import io.airlift.log.Logger;
 
 /**
  * HBase client manager

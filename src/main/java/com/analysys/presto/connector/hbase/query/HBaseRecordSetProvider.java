@@ -13,8 +13,13 @@
  */
 package com.analysys.presto.connector.hbase.query;
 
-import com.analysys.presto.connector.hbase.frame.HBaseConnectorId;
+import java.util.List;
+import java.util.Objects;
+
+import javax.inject.Inject;
+
 import com.analysys.presto.connector.hbase.connection.HBaseClientManager;
+import com.analysys.presto.connector.hbase.frame.HBaseConnectorId;
 import com.analysys.presto.connector.hbase.meta.HBaseColumnHandle;
 import com.analysys.presto.connector.hbase.schedule.HBaseSplit;
 import com.facebook.presto.spi.ColumnHandle;
@@ -26,10 +31,6 @@ import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-
-import javax.inject.Inject;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * HBase record set provider
@@ -49,8 +50,10 @@ public class HBaseRecordSetProvider implements ConnectorRecordSetProvider {
     }
 
     @Override
-    public RecordSet getRecordSet(ConnectorTransactionHandle transactionHandle,
-                                  ConnectorSession session, ConnectorSplit split, List columns) {
+    public RecordSet getRecordSet(ConnectorTransactionHandle transaction,
+                                  ConnectorSession session,
+                                  ConnectorSplit split,
+                                  List<? extends ColumnHandle> columns) {
         Objects.requireNonNull(split, "partitionChunk is null");
         HBaseSplit hBaseSplit = (HBaseSplit) split;
         Preconditions.checkArgument(

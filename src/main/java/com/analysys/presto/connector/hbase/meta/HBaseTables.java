@@ -13,21 +13,24 @@
  */
 package com.analysys.presto.connector.hbase.meta;
 
-import com.analysys.presto.connector.hbase.connection.HBaseClientManager;
-import com.facebook.presto.spi.SchemaTableName;
-import com.google.common.collect.ImmutableMap;
-import io.airlift.log.Logger;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.NamespaceDescriptor;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Admin;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
+import javax.inject.Inject;
+
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.NamespaceDescriptor;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
+
+import com.analysys.presto.connector.hbase.connection.HBaseClientManager;
+import com.facebook.presto.spi.SchemaTableName;
+import com.google.common.collect.ImmutableMap;
+
+import io.airlift.log.Logger;
 
 /**
  * HBase tables
@@ -100,7 +103,7 @@ public class HBaseTables {
         return set;
     }
 
-    public boolean dropTable(String schema, String tableName) {
+    void dropTable(String schema, String tableName) {
         Admin admin = null;
         try {
             admin = hbaseClientManager.getAdmin();
@@ -108,13 +111,11 @@ public class HBaseTables {
             admin.deleteTable(TableName.valueOf(schema + ":" + tableName));
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            return false;
         } finally {
             if (admin != null) {
                 hbaseClientManager.close(admin);
             }
         }
-        return true;
     }
 
 }

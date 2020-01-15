@@ -13,14 +13,16 @@
  */
 package com.analysys.presto.connector.hbase.meta;
 
+import java.util.List;
+import java.util.Objects;
+
+import org.apache.hadoop.hbase.HTableDescriptor;
+
 import com.analysys.presto.connector.hbase.utils.Utils;
 import com.facebook.presto.spi.ColumnMetadata;
 import com.google.common.collect.ImmutableList;
-import io.airlift.log.Logger;
-import org.apache.hadoop.hbase.HTableDescriptor;
 
-import java.util.List;
-import java.util.Objects;
+import io.airlift.log.Logger;
 
 /**
  * HBase table

@@ -13,13 +13,15 @@
  */
 package com.analysys.presto.connector.hbase.meta;
 
-import io.airlift.configuration.Config;
-import io.airlift.log.Logger;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.validation.constraints.NotNull;
 import java.net.InetAddress;
 import java.util.Arrays;
+
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.lang3.StringUtils;
+
+import io.airlift.configuration.Config;
+import io.airlift.log.Logger;
 
 /**
  * HBase config
@@ -70,6 +72,13 @@ public class HBaseConfig {
      * create snapshot retry times
      */
     private int createSnapshotRetryTimes = 15;
+
+    /**
+     * Does rowkey has a seperate salt part
+     * salt part can only have one char
+     * can be anyone of a~z,A~Z,0~9
+     */
+    private boolean seperateSaltPart = false;
 
     @NotNull
     public String getMetaDir() {
@@ -212,6 +221,15 @@ public class HBaseConfig {
     @Config("clientside-createsnapshot-retrytimes")
     public void setCreateSnapshotRetryTimes(int createSnapshotRetryTimes) {
         this.createSnapshotRetryTimes = createSnapshotRetryTimes;
+    }
+
+    public boolean isSeperateSaltPart() {
+        return seperateSaltPart;
+    }
+
+    @Config("has-seperate-salt-part")
+    public void setSeperateSaltPart(boolean seperateSaltPart) {
+        this.seperateSaltPart = seperateSaltPart;
     }
 
     @Override

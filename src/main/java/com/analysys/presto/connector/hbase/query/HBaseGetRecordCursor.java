@@ -13,12 +13,16 @@
  */
 package com.analysys.presto.connector.hbase.query;
 
-import com.analysys.presto.connector.hbase.meta.HBaseColumnHandle;
-import com.analysys.presto.connector.hbase.schedule.HBaseSplit;
-import com.facebook.presto.spi.ColumnHandle;
-import com.facebook.presto.spi.type.Type;
-import com.google.common.base.Preconditions;
-import io.airlift.log.Logger;
+import static com.analysys.presto.connector.hbase.utils.Constant.SYSTEMOUT_INTERVAL;
+import static com.analysys.presto.connector.hbase.utils.Utils.arrayCopy;
+import static java.util.Objects.requireNonNull;
+
+import java.net.InetAddress;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
@@ -27,15 +31,13 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import java.net.InetAddress;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.analysys.presto.connector.hbase.meta.HBaseColumnHandle;
+import com.analysys.presto.connector.hbase.schedule.HBaseSplit;
+import com.facebook.presto.spi.ColumnHandle;
+import com.facebook.presto.spi.type.Type;
+import com.google.common.base.Preconditions;
 
-import static com.analysys.presto.connector.hbase.utils.Constant.SYSTEMOUT_INTERVAL;
-import static com.analysys.presto.connector.hbase.utils.Utils.arrayCopy;
-import static java.util.Objects.requireNonNull;
+import io.airlift.log.Logger;
 
 /**
  * Use record.rawCells() api to loop column value, this is 20% faster than result.getValue
@@ -104,7 +106,10 @@ public class HBaseGetRecordCursor extends HBaseRecordCursor {
     public boolean advanceNextPosition() {
         String colName = null;
         try {
-            if (this.results != null && this.currentRecordIndex >= this.results.length) {
+            // if we got error when reading data, return false to end this reading.
+            if (results == null) {
+                return false;
+            } else if (this.currentRecordIndex >= this.results.length) {
                 InetAddress localhost = InetAddress.getLocalHost();
                 // Random printing
                 if (System.currentTimeMillis() % SYSTEMOUT_INTERVAL == 0) {

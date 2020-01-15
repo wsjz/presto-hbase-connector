@@ -13,14 +13,14 @@
  */
 package com.analysys.presto.connector.hbase.meta;
 
+import static java.util.Objects.requireNonNull;
+
+import java.util.Objects;
+
 import com.facebook.presto.spi.ConnectorTableHandle;
 import com.facebook.presto.spi.SchemaTableName;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.Objects;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * HBase table handle

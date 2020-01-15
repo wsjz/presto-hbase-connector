@@ -16,16 +16,21 @@
  */
 package com.analysys.presto.connector.hbase.query;
 
-import com.analysys.presto.connector.hbase.connection.HBaseClientManager;
-import com.analysys.presto.connector.hbase.meta.HBaseColumnHandle;
-import com.facebook.presto.spi.*;
-import com.facebook.presto.spi.connector.ConnectorPageSourceProvider;
-import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
+import static java.util.Objects.requireNonNull;
 
-import javax.inject.Inject;
 import java.util.List;
 
-import static java.util.Objects.requireNonNull;
+import javax.inject.Inject;
+
+import com.analysys.presto.connector.hbase.connection.HBaseClientManager;
+import com.analysys.presto.connector.hbase.meta.HBaseColumnHandle;
+import com.facebook.presto.spi.ColumnHandle;
+import com.facebook.presto.spi.ConnectorPageSource;
+import com.facebook.presto.spi.ConnectorSession;
+import com.facebook.presto.spi.ConnectorSplit;
+import com.facebook.presto.spi.RecordPageSource;
+import com.facebook.presto.spi.connector.ConnectorPageSourceProvider;
+import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 
 /**
  * HBase delete function interface provider
@@ -46,9 +51,11 @@ public class HBasePageSourceProvider implements ConnectorPageSourceProvider {
 
     @Override
     public ConnectorPageSource createPageSource(ConnectorTransactionHandle transactionHandle,
-                                                ConnectorSession session, ConnectorSplit split, List<ColumnHandle> columns) {
+                                                ConnectorSession session,
+                                                ConnectorSplit split,
+                                                List<ColumnHandle> columns) {
         HBaseRecordSet recordSet = (HBaseRecordSet) recordSetProvider.getRecordSet(transactionHandle, session, split, columns);
-        if (columns.stream().anyMatch(ch -> ((HBaseColumnHandle) ch).isIsRowKey())) {
+        if (columns.stream().anyMatch(ch -> ((HBaseColumnHandle) ch).isRowKey())) {
             return new HBaseUpdatablePageSource(recordSet, hbaseClientManager);
         } else {
             return new RecordPageSource(recordSet);

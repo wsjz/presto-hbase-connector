@@ -13,14 +13,13 @@
  */
 package com.analysys.presto.connector.hbase.meta;
 
-import com.analysys.presto.connector.hbase.utils.Constant;
-// import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.facebook.presto.jdbc.internal.jackson.annotation.JsonIgnore;
-import com.google.common.base.Preconditions;
-import org.apache.commons.lang3.StringUtils;
-// import org.apache.hadoop.hbase.shaded.org.codehaus.jackson.annotate.JsonIgnore;
+import static com.analysys.presto.connector.hbase.utils.Utils.isEmpty;
 
 import java.util.List;
+
+import com.analysys.presto.connector.hbase.utils.Constant;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Preconditions;
 
 /**
  * Table meta info meta
@@ -40,6 +39,15 @@ public class TableMetaInfo {
     private String describe = null;
     private List<ColumnMetaInfo> columns = null;
     private String rowKeySeparator = null;
+
+    /**
+     * the range of the first char of rowKey, only support number and char with lower and upper case
+     * param format like:
+     * 0~9,a~f,A~F
+     * 0~9,A~F
+     * A~F
+     */
+    private String rowKeyFirstCharRange;
 
     public String getTableName() {
         return tableName;
@@ -101,9 +109,9 @@ public class TableMetaInfo {
 
     @JsonIgnore
     public String getRowKeyColName() {
-        if (StringUtils.isEmpty(rowKeyColName)) {
+        if (isEmpty(rowKeyColName)) {
             for (ColumnMetaInfo c : this.columns) {
-                if (c.isIsRowKey()) {
+                if (c.isRowKey()) {
                     this.rowKeyColName = c.getColumnName();
                     break;
                 }
@@ -115,11 +123,19 @@ public class TableMetaInfo {
     }
 
     public String getRowKeySeparator() {
-        return StringUtils.isEmpty(rowKeySeparator) ? Constant.ROWKEY_SPLITER : rowKeySeparator;
+        return isEmpty(rowKeySeparator) ? Constant.ROWKEY_SPLITER : rowKeySeparator;
     }
 
     public void setRowKeySeparator(String rowKeySeparator) {
         this.rowKeySeparator = rowKeySeparator;
+    }
+
+    public String getRowKeyFirstCharRange() {
+        return rowKeyFirstCharRange;
+    }
+
+    public void setRowKeyFirstCharRange(String rowKeyFirstCharRange) {
+        this.rowKeyFirstCharRange = rowKeyFirstCharRange;
     }
 
     @Override

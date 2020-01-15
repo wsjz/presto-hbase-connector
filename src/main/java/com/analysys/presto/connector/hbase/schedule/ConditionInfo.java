@@ -13,17 +13,26 @@
  */
 package com.analysys.presto.connector.hbase.schedule;
 
-import com.analysys.presto.connector.hbase.utils.Constant;
-import com.facebook.presto.spi.type.*;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.airlift.log.Logger;
-import io.airlift.slice.Slice;
-import org.apache.hadoop.hbase.util.Bytes;
+import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 
 import java.math.BigDecimal;
 
-import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import org.apache.hadoop.hbase.util.Bytes;
+
+import com.analysys.presto.connector.hbase.utils.Constant;
+import com.facebook.presto.spi.type.BigintType;
+import com.facebook.presto.spi.type.BooleanType;
+import com.facebook.presto.spi.type.DecimalType;
+import com.facebook.presto.spi.type.DoubleType;
+import com.facebook.presto.spi.type.IntegerType;
+import com.facebook.presto.spi.type.SmallintType;
+import com.facebook.presto.spi.type.Type;
+import com.facebook.presto.spi.type.VarcharType;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import io.airlift.log.Logger;
+import io.airlift.slice.Slice;
 
 /**
  * Condition info

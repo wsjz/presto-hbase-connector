@@ -13,21 +13,26 @@
  */
 package com.analysys.presto.connector.hbase.query;
 
-import com.analysys.presto.connector.hbase.meta.HBaseColumnHandle;
-import com.analysys.presto.connector.hbase.schedule.HBaseSplit;
-import io.airlift.log.Logger;
+import static com.analysys.presto.connector.hbase.utils.Constant.SYSTEMOUT_INTERVAL;
+import static com.analysys.presto.connector.hbase.utils.Utils.arrayCopy;
+import static java.util.Objects.requireNonNull;
+
+import java.net.InetAddress;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import java.net.InetAddress;
-import java.util.*;
+import com.analysys.presto.connector.hbase.meta.HBaseColumnHandle;
+import com.analysys.presto.connector.hbase.schedule.HBaseSplit;
 
-import static com.analysys.presto.connector.hbase.utils.Constant.SYSTEMOUT_INTERVAL;
-import static com.analysys.presto.connector.hbase.utils.Utils.arrayCopy;
-import static java.util.Objects.requireNonNull;
+import io.airlift.log.Logger;
 
 /**
  * Use record.rawCells() api to loop column value, this is 20% faster than result.getValue

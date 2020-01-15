@@ -13,10 +13,12 @@
  */
 package com.analysys.presto.connector.hbase.frame;
 
+import java.util.Objects;
+
 import com.analysys.presto.connector.hbase.connection.HBaseClientManager;
+import com.analysys.presto.connector.hbase.meta.HBaseConfig;
 import com.analysys.presto.connector.hbase.meta.HBaseMetadata;
 import com.analysys.presto.connector.hbase.meta.HBaseTables;
-import com.analysys.presto.connector.hbase.meta.HBaseConfig;
 import com.analysys.presto.connector.hbase.query.HBasePageSinkProvider;
 import com.analysys.presto.connector.hbase.query.HBasePageSourceProvider;
 import com.analysys.presto.connector.hbase.query.HBaseRecordSetProvider;
@@ -27,9 +29,8 @@ import com.facebook.presto.spi.type.TypeManager;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
-import io.airlift.configuration.ConfigBinder;
 
-import java.util.Objects;
+import io.airlift.configuration.ConfigBinder;
 
 /**
  * HBase inject module

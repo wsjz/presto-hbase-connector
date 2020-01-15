@@ -13,11 +13,45 @@
  */
 package com.analysys.presto.connector.hbase.meta;
 
+import static com.analysys.presto.connector.hbase.utils.Constant.CONNECTOR_NAME;
+import static com.analysys.presto.connector.hbase.utils.Types.checkType;
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.inject.Inject;
+
+import org.apache.hadoop.hbase.client.Admin;
+import org.apache.hadoop.hbase.client.SnapshotDescription;
+import org.apache.hadoop.hbase.client.SnapshotType;
+
 import com.analysys.presto.connector.hbase.connection.HBaseClientManager;
 import com.analysys.presto.connector.hbase.frame.HBaseConnectorId;
 import com.analysys.presto.connector.hbase.utils.Constant;
 import com.analysys.presto.connector.hbase.utils.Utils;
-import com.facebook.presto.spi.*;
+import com.facebook.presto.spi.ColumnHandle;
+import com.facebook.presto.spi.ColumnMetadata;
+import com.facebook.presto.spi.ConnectorInsertTableHandle;
+import com.facebook.presto.spi.ConnectorSession;
+import com.facebook.presto.spi.ConnectorTableHandle;
+import com.facebook.presto.spi.ConnectorTableLayout;
+import com.facebook.presto.spi.ConnectorTableLayoutHandle;
+import com.facebook.presto.spi.ConnectorTableLayoutResult;
+import com.facebook.presto.spi.ConnectorTableMetadata;
+import com.facebook.presto.spi.Constraint;
+import com.facebook.presto.spi.SchemaTableName;
+import com.facebook.presto.spi.SchemaTablePrefix;
+import com.facebook.presto.spi.TableNotFoundException;
 import com.facebook.presto.spi.connector.ConnectorMetadata;
 import com.facebook.presto.spi.connector.ConnectorOutputMetadata;
 import com.facebook.presto.spi.statistics.ComputedStatistics;
@@ -25,22 +59,9 @@ import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.VarcharType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
 import io.airlift.log.Logger;
 import io.airlift.slice.Slice;
-import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.SnapshotDescription;
-import org.apache.hadoop.hbase.client.SnapshotType;
-import org.apache.hadoop.hbase.protobuf.generated.HBaseProtos;
-import org.apache.hadoop.hbase.shaded.protobuf.generated.SnapshotProtos;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.*;
-
-import static com.analysys.presto.connector.hbase.utils.Constant.CONNECTOR_NAME;
-import static com.analysys.presto.connector.hbase.utils.Types.checkType;
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
 
 /**
  * HBase metadata
@@ -154,7 +175,7 @@ public class HBaseMetadata implements ConnectorMetadata {
                 columnHandles.put(column.getName(),
                         new HBaseColumnHandle(
                                 connectorId.getId(), column.getFamily(), column.getName(),
-                                column.getType(), index, column.isIsRowKey()));
+                                column.getType(), index, column.isRowKey()));
             }
             return columnHandles.build();
         }
@@ -185,7 +206,7 @@ public class HBaseMetadata implements ConnectorMetadata {
 
     private List<SchemaTableName> listTables(ConnectorSession session, SchemaTablePrefix prefix) {
         return (prefix.getSchemaName() == null ?
-                        this.listTables(session, prefix.getSchemaName()) :
+                this.listTables(session, prefix.getSchemaName()) :
                 ImmutableList.of(new SchemaTableName(prefix.getSchemaName(), prefix.getTableName())));
     }
 
@@ -218,7 +239,6 @@ public class HBaseMetadata implements ConnectorMetadata {
         } else {
             fullTableName = schemaName + ":" + tableName;
         }
-
         SnapshotDescription snapshot = new SnapshotDescription(snapshotName, fullTableName,
                 SnapshotType.FLUSH);
         admin.snapshot(snapshot);
@@ -263,7 +283,7 @@ public class HBaseMetadata implements ConnectorMetadata {
 
     private int findRowKeyChannel(List<ColumnMetaInfo> columns) {
         for (int i = 0; i < columns.size(); i++) {
-            if (columns.get(i).isIsRowKey()) {
+            if (columns.get(i).isRowKey()) {
                 return i;
             }
         }
@@ -297,7 +317,7 @@ public class HBaseMetadata implements ConnectorMetadata {
         requireNonNull(tableMetaInfo, String.format("Table %s.%s has no metadata, please check .json file under %s",
                 schemaName, tableName, hbaseClientManager.getConfig().getMetaDir() + "/" + schemaName));
 
-        Optional<ColumnMetaInfo> rowKeyOpt = tableMetaInfo.getColumns().stream().filter(ColumnMetaInfo::isIsRowKey).findFirst();
+        Optional<ColumnMetaInfo> rowKeyOpt = tableMetaInfo.getColumns().stream().filter(ColumnMetaInfo::isRowKey).findFirst();
         checkArgument(rowKeyOpt.isPresent(),
                 String.format("Table %s.%s has no rowKey! Please check .json file under %s",
                         schemaName, tableName, hbaseClientManager.getConfig().getMetaDir() + "/" + schemaName));
@@ -305,10 +325,10 @@ public class HBaseMetadata implements ConnectorMetadata {
         ColumnMetaInfo rowKeyInfo = rowKeyOpt.get();
         // HBaseColumnHandle's attributes cannot be all the same with the REAL rowKey column,
         // Or there will be a java.lang.IllegalArgumentException: Multiple entries with same value Exception.
-        return new HBaseColumnHandle(CONNECTOR_NAME, /*rowKeyInfo.getFamily(),*/ "",
+        return new HBaseColumnHandle(CONNECTOR_NAME, "",
                 rowKeyInfo.getColumnName(), VarcharType.VARCHAR,
                 tableMetaInfo.getColumns().indexOf(rowKeyOpt.get()),
-                rowKeyInfo.isIsRowKey());
+                rowKeyInfo.isRowKey());
     }
 
     @Override
@@ -327,4 +347,3 @@ public class HBaseMetadata implements ConnectorMetadata {
     // --------------- support delete function end ---------------
 
 }
-

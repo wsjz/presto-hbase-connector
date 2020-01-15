@@ -1,32 +1,17 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.analysys.presto.connector.hbase.query;
-
-import com.analysys.presto.connector.hbase.connection.HBaseClientManager;
-import com.analysys.presto.connector.hbase.meta.HBaseExtendedTableHandle;
-import com.analysys.presto.connector.hbase.meta.HBaseInsertTableHandle;
-import com.analysys.presto.connector.hbase.utils.Utils;
-import com.facebook.presto.spi.ConnectorPageSink;
-import com.facebook.presto.spi.ConnectorSession;
-import com.facebook.presto.spi.Page;
-import com.facebook.presto.spi.block.Block;
-import com.facebook.presto.spi.block.DictionaryBlock;
-import com.facebook.presto.spi.block.VariableWidthBlock;
-import com.facebook.presto.spi.type.DecimalType;
-import com.facebook.presto.spi.type.SqlDecimal;
-import com.facebook.presto.spi.type.StandardTypes;
-import com.facebook.presto.spi.type.Type;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import io.airlift.log.Logger;
-import io.airlift.slice.Slice;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.util.Bytes;
-
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 import static com.analysys.presto.connector.hbase.utils.Constant.ARRAY_STRING_SPLITTER;
 import static com.analysys.presto.connector.hbase.utils.Constant.SYSTEMOUT_INTERVAL;
@@ -38,6 +23,38 @@ import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.Varchars.isVarcharType;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.CompletableFuture.completedFuture;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.util.Bytes;
+
+import com.analysys.presto.connector.hbase.connection.HBaseClientManager;
+import com.analysys.presto.connector.hbase.meta.HBaseInsertTableHandle;
+import com.analysys.presto.connector.hbase.utils.Utils;
+import com.facebook.presto.spi.ConnectorPageSink;
+import com.facebook.presto.spi.Page;
+import com.facebook.presto.spi.block.Block;
+import com.facebook.presto.spi.block.DictionaryBlock;
+import com.facebook.presto.spi.block.VariableWidthBlock;
+import com.facebook.presto.spi.type.DecimalType;
+import com.facebook.presto.spi.type.SqlDecimal;
+import com.facebook.presto.spi.type.StandardTypes;
+import com.facebook.presto.spi.type.Type;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+
+import io.airlift.log.Logger;
+import io.airlift.slice.Slice;
 
 /**
  * write data to HBase
@@ -57,20 +74,19 @@ public class HBasePageSink implements ConnectorPageSink {
     private final int rowKeyColumnChannel;
     private final Map<String, String> colNameAndFamilyNameMap;
 
-    public HBasePageSink(ConnectorSession connectorSession, HBaseClientManager clientManager,
-                         HBaseExtendedTableHandle extendedTableHandle) {
+    public HBasePageSink(HBaseClientManager clientManager,
+                         HBaseInsertTableHandle insertTableHandle) {
         requireNonNull(clientManager, "clientManager is null");
-        this.columnTypes = extendedTableHandle.getColumnTypes();
-        this.columnNames = extendedTableHandle.getColumnNames();
+        this.columnTypes = insertTableHandle.getColumnTypes();
+        this.columnNames = insertTableHandle.getColumnNames();
 
         this.clientManager = clientManager;
-        HBaseInsertTableHandle insertTableHandle = (HBaseInsertTableHandle) extendedTableHandle;
         this.rowKeyColumnChannel = insertTableHandle.getRowKeyColumnChannel();
         this.colNameAndFamilyNameMap = insertTableHandle.getColNameAndFamilyNameMap();
 
         try {
-            this.tableName = extendedTableHandle.getSchemaTableName().getTableName();
-            this.schemaName = extendedTableHandle.getSchemaTableName().getSchemaName();
+            this.tableName = insertTableHandle.getSchemaTableName().getTableName();
+            this.schemaName = insertTableHandle.getSchemaTableName().getSchemaName();
         } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
         }
@@ -90,7 +106,6 @@ public class HBasePageSink implements ConnectorPageSink {
                 for (int channel = 0; channel < page.getChannelCount(); channel++) {
                     // The value of rowKey has been planted in object Put already,
                     // so we don't need to append it here.
-                    // if (this.tableMetaInfo.getColumns().get(channel).isIsRowKey()) {
                     if (channel == rowKeyColumnChannel) {
                         continue;
                     }

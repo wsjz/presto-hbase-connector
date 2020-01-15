@@ -13,18 +13,22 @@
  */
 package com.analysys.presto.connector.hbase.frame;
 
-import com.analysys.presto.connector.hbase.meta.HBaseMetadata;
-import com.analysys.presto.connector.hbase.query.HBaseRecordSetProvider;
-import com.analysys.presto.connector.hbase.schedule.HBaseSplitManager;
-import com.facebook.presto.spi.connector.*;
-import com.facebook.presto.spi.transaction.IsolationLevel;
-import io.airlift.bootstrap.LifeCycleManager;
-import io.airlift.log.Logger;
+import static java.util.Objects.requireNonNull;
 
 import javax.inject.Inject;
-import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import com.analysys.presto.connector.hbase.meta.HBaseMetadata;
+import com.analysys.presto.connector.hbase.schedule.HBaseSplitManager;
+import com.facebook.presto.spi.connector.Connector;
+import com.facebook.presto.spi.connector.ConnectorMetadata;
+import com.facebook.presto.spi.connector.ConnectorPageSinkProvider;
+import com.facebook.presto.spi.connector.ConnectorPageSourceProvider;
+import com.facebook.presto.spi.connector.ConnectorSplitManager;
+import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
+import com.facebook.presto.spi.transaction.IsolationLevel;
+
+import io.airlift.bootstrap.LifeCycleManager;
+import io.airlift.log.Logger;
 
 /**
  * HBase connector
@@ -36,7 +40,6 @@ class HBaseConnector implements Connector {
     private final LifeCycleManager lifeCycleManager;
     private final HBaseMetadata metadata;
     private final HBaseSplitManager splitManager;
-    private final HBaseRecordSetProvider recordSetProvider;
     private final ConnectorPageSinkProvider pageSinkProvider;
     private final ConnectorPageSourceProvider pageSourceProvider;
 
@@ -44,13 +47,11 @@ class HBaseConnector implements Connector {
     public HBaseConnector(LifeCycleManager lifeCycleManager,
                           HBaseMetadata metadata,
                           HBaseSplitManager splitManager,
-                          HBaseRecordSetProvider recordSetProvider,
                           ConnectorPageSinkProvider pageSinkProvider,
                           ConnectorPageSourceProvider pageSourceProvider) {
         this.lifeCycleManager = requireNonNull(lifeCycleManager, "lifeCycleManager is null");
         this.metadata = requireNonNull(metadata, "metadata is null");
         this.splitManager = requireNonNull(splitManager, "splitManager is null");
-        this.recordSetProvider = requireNonNull(recordSetProvider, "recordSetProvider is null");
         this.pageSinkProvider = requireNonNull(pageSinkProvider, "pageSinkProvider is null");
         this.pageSourceProvider = requireNonNull(pageSourceProvider, "pageSourceProvider is null");
     }
@@ -68,11 +69,6 @@ class HBaseConnector implements Connector {
     @Override
     public ConnectorSplitManager getSplitManager() {
         return this.splitManager;
-    }
-
-    @Override
-    public ConnectorRecordSetProvider getRecordSetProvider() {
-        return this.recordSetProvider;
     }
 
     @Override
