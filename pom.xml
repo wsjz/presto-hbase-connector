@@ -14,9 +14,9 @@
 
     <!-- for presto cluster/single -->
     <groupId>com.analysys.presto</groupId>
-    <version>meta-0.1.2</version>
+    <version>meta-0.1.5</version>
 
-    <artifactId>prestodb-hbase-0.220-ops</artifactId>
+    <artifactId>prestodb-hbase-0.219-2.0.5-ops</artifactId>
     <description>PrestoDb - HBase Connector</description>
 
     <properties>
