@@ -22,7 +22,7 @@ import static com.analysys.presto.connector.hbase.utils.Constant.ROWKEY_PREFIX_S
 import static com.analysys.presto.connector.hbase.utils.Constant.ROWKEY_SPLITER;
 import static com.analysys.presto.connector.hbase.utils.Constant.ROWKEY_TAIL;
 import static com.analysys.presto.connector.hbase.utils.Constant.SWUNG_DASH;
-import static com.analysys.presto.connector.hbase.utils.Utils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.util.ArrayList;
 import java.util.Arrays;

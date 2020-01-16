@@ -233,7 +233,7 @@ public class HBaseMetadata implements ConnectorMetadata {
                                       String tableName) throws IOException {
         long start = System.currentTimeMillis();
         String fullTableName;
-        if (Constant.HBASE_NAMESPACE_DEFAULT.equals(schemaName)
+        if (Constant.DEFAULT_HBASE_NAMESPACE_NAME.equals(schemaName)
                 || "".equals(schemaName)) {
             fullTableName = tableName;
         } else {

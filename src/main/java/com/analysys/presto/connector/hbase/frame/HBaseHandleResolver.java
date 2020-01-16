@@ -23,6 +23,7 @@ import com.facebook.presto.spi.ConnectorHandleResolver;
 import com.facebook.presto.spi.ConnectorInsertTableHandle;
 import com.facebook.presto.spi.ConnectorSplit;
 import com.facebook.presto.spi.ConnectorTableHandle;
+import com.facebook.presto.spi.ConnectorTableLayoutHandle;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 
 /**
@@ -34,7 +35,7 @@ import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 public class HBaseHandleResolver implements ConnectorHandleResolver {
 
     @Override
-    public Class getTableLayoutHandleClass() {
+    public Class<? extends ConnectorTableLayoutHandle>  getTableLayoutHandleClass() {
         return HBaseTableLayoutHandle.class;
     }
 

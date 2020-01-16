@@ -26,7 +26,7 @@ public class ColumnMetaInfo {
     private String columnName = null;
     private String comment = null;
     private String type = null;
-    @JsonProperty("isRowKey")
+    @JsonProperty(value = "isRowKey")
     private boolean rowKey = false;
 
     public String getFamily() {
