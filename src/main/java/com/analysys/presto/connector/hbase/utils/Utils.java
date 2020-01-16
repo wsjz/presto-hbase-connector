@@ -19,11 +19,6 @@ import static com.analysys.presto.connector.hbase.utils.Constant.DECIMAL_DEFAULT
 import static com.analysys.presto.connector.hbase.utils.Constant.DECIMAL_DEFAULT_SCALE;
 import static com.analysys.presto.connector.hbase.utils.Constant.DEFAULT_HBASE_NAMESPACE_NAME;
 import static com.analysys.presto.connector.hbase.utils.Constant.JSON_ENCODING_UTF8;
-import static com.analysys.presto.connector.hbase.utils.Constant.JSON_TABLEMETA_COLUMNES;
-import static com.analysys.presto.connector.hbase.utils.Constant.JSON_TABLEMETA_COLUMNNAME;
-import static com.analysys.presto.connector.hbase.utils.Constant.JSON_TABLEMETA_FAMILY;
-import static com.analysys.presto.connector.hbase.utils.Constant.JSON_TABLEMETA_ISROWKEY;
-import static com.analysys.presto.connector.hbase.utils.Constant.JSON_TABLEMETA_TYPE;
 import static com.analysys.presto.connector.hbase.utils.Constant.TABLE_META_FILE_TAIL;
 
 import java.io.File;
@@ -39,13 +34,11 @@ import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.shaded.protobuf.generated.SnapshotProtos;
 import org.apache.hadoop.hbase.snapshot.SnapshotDescriptionUtils;
 import org.apache.hadoop.hbase.snapshot.SnapshotManifest;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
 
+import com.analysys.presto.connector.hbase.meta.ColumnMetaInfo;
 import com.analysys.presto.connector.hbase.meta.HBaseColumnMetadata;
 import com.analysys.presto.connector.hbase.meta.TableMetaInfo;
 import com.analysys.presto.connector.hbase.schedule.ConditionInfo;
-import com.facebook.presto.jdbc.internal.jackson.databind.ObjectMapper;
 import com.facebook.presto.spi.ColumnMetadata;
 import com.facebook.presto.spi.type.ArrayType;
 import com.facebook.presto.spi.type.BigintType;
@@ -56,6 +49,7 @@ import com.facebook.presto.spi.type.IntegerType;
 import com.facebook.presto.spi.type.TimestampType;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.VarcharType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -129,17 +123,17 @@ public class Utils {
         ImmutableList.Builder<ColumnMetadata> columnsMetadata = ImmutableList.builder();
         try {
             String jsonStr = readTableJson(schemaName, tableName, metaDir);
-            JSONObject obj = new JSONObject(jsonStr);
-            JSONArray cols = obj.getJSONArray(JSON_TABLEMETA_COLUMNES);
+            ObjectMapper mapper = new ObjectMapper();
+            TableMetaInfo tableMetaInfo = mapper.readValue(jsonStr, TableMetaInfo.class);
+            List<ColumnMetaInfo> columns = tableMetaInfo.getColumns();
             boolean hasRowKey = false;
-            for (int i = 0; i < cols.length(); i++) {
-                JSONObject temp = new JSONObject(cols.getString(i));
-                String family = temp.getString(JSON_TABLEMETA_FAMILY);
-                String columnName = temp.getString(JSON_TABLEMETA_COLUMNNAME);
-                String type = temp.getString(JSON_TABLEMETA_TYPE);
-                boolean isRowKey = temp.getBoolean(JSON_TABLEMETA_ISROWKEY);
+            for (ColumnMetaInfo temp : columns) {
+                String family = temp.getFamily();
+                String columnName = temp.getColumnName();
+                String type = temp.getType();
+                boolean isRowKey = temp.isRowKey();
                 columnsMetadata.add(new HBaseColumnMetadata(family, columnName, matchType(type), isRowKey));
-                if (isRowKey)  {
+                if (isRowKey) {
                     hasRowKey = true;
                 }
             }

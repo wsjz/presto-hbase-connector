@@ -35,7 +35,6 @@ public class TableMetaInfo {
      * Define which columns rowKey consist of, columns are separated by ','
      */
     private String rowKeyFormat = null;
-    private String rowKeySaltUpperAndLower = null;
     private String describe = null;
     private List<ColumnMetaInfo> columns = null;
     private String rowKeySeparator = null;
@@ -71,24 +70,6 @@ public class TableMetaInfo {
 
     public void setDescribe(String describe) {
         this.describe = describe;
-    }
-
-    public String getRowKeySaltUpperAndLower() {
-        return rowKeySaltUpperAndLower;
-    }
-
-    public void setRowKeySaltUpperAndLower(String rowKeySaltUpperAndLower) {
-        this.rowKeySaltUpperAndLower = rowKeySaltUpperAndLower;
-    }
-
-    @JsonIgnore
-    public int getRowKeyPrefixLower() {
-        return this.rowKeySaltUpperAndLower == null ? -1 : Integer.valueOf(this.rowKeySaltUpperAndLower.split(",")[0]);
-    }
-
-    @JsonIgnore
-    public int getRowKeyPrefixUpper() {
-        return this.rowKeySaltUpperAndLower == null ? -1 : Integer.valueOf(this.rowKeySaltUpperAndLower.split(",")[1]);
     }
 
     public List<ColumnMetaInfo> getColumns() {
@@ -145,7 +126,6 @@ public class TableMetaInfo {
                 ", schemaName='" + schemaName + '\'' +
                 ", rowKeyColName='" + rowKeyColName + '\'' +
                 ", rowKeyFormat='" + rowKeyFormat + '\'' +
-                ", rowKeySaltUpperAndLower='" + rowKeySaltUpperAndLower + '\'' +
                 ", describe='" + describe + '\'' +
                 ", columns=" + columns +
                 ", rowKeySeparator='" + rowKeySeparator + '\'' +
